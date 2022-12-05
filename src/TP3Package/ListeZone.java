@@ -1,5 +1,7 @@
 package TP3Package;
 
+import javax.sound.midi.Soundbank;
+
 /**
  *<p>
  * Une <code>ListeZone</code> est une classe contenant deux listes en
@@ -44,10 +46,10 @@ package TP3Package;
  * @param <Element> Le type des éléments placés dans la liste de base.
  */
 public class ListeZone< Zone, Element > {
-
-    Element debutElement;
-    Zone debutZone;
-
+    MaillonElement<Element> debutElement;
+    MaillonZone<Zone, Element> debutZone;
+    int nbrElement;
+    int nbrZone;
 
     /**
      * Construis une nouvelle <code>ListeZone</code> vide.
@@ -57,23 +59,34 @@ public class ListeZone< Zone, Element > {
         debutElement = null;
     }
 
-
     /**
      * Ajoute un élément à la fin de la liste de base.
      * Si la liste ne contient pas d'élément, cela lance l'exception
      * IndexOutOfBoundsException.  L'élément est donc ajouté dans la dernière zone.
      * @param e l'élément ajouté à la fin de la liste de base.
      */
-    public void ajouter( Element e ) {
+    public void ajouter( Element e ) throws IndexOutOfBoundsException{
 
-        //TODO while debut.suivant != null
-        //TODO qd c est egal a null, ajouter
+        MaillonElement<Element> courant = debutElement;
 
-        try {
-
-        }catch (IndexOutOfBoundsException o){
+        if (debutElement == null){
+            debutElement = new MaillonElement<Element>((MaillonElement) e);
+            //debutZone.toString();
+            System.out.println(debutElement.toString());
+        }else {
+            while (courant.suivant != null){
+                courant = courant.suivant;
+                //debutZone.toString();
+                System.out.println(courant.toString());
+            }
+            courant.suivant = new MaillonElement<Element>((MaillonElement) e);
+            System.out.println("fin");
+            //System.out.println(courant);
+            System.out.println(debutElement.toString());
 
         }
+
+        //System.out.println(debutZone.toString());
     }
 
     /**
@@ -85,9 +98,74 @@ public class ListeZone< Zone, Element > {
      */
     public void ajouter( Zone z, Element e ) {
 
+        //TODO verifier si zone existe
+            // TODO si existe, rajouter element a la fin de la liste de base
+            // TODO si non, rajouter la Zone et ajouter l'element a la liste
+            //  de base
+        MaillonZone courantZone = debutZone;
+        MaillonZone precedentZone = null;
+        MaillonZone nouvelleZone = null;
+        MaillonElement nouveauElement;
 
+        //CAS 1: si la zone existe
+        while (courantZone != null && courantZone.charZone != z ){
+            precedentZone = courantZone;
+            courantZone = courantZone.suivant;
+        }
+        //si la zone existe alors ca ne va pas etre null
+        if(courantZone != null){
+            MaillonElement elementTemp;
+            MaillonElement precedentElementAvantProchaineZone = null;
+            MaillonElement premierElementDansProchaineZone;
+            MaillonZone prochaineZone;
+
+            //s il y a une zone apres celle la alors il ne faut pas perdre
+            // les donnees
+            if(courantZone.suivant != null){
+                prochaineZone = courantZone.suivant;
+                premierElementDansProchaineZone = prochaineZone.getPointeurElement();
+                elementTemp = debutElement;
+
+                while (elementTemp != null && elementTemp != premierElementDansProchaineZone ){
+                    precedentElementAvantProchaineZone = elementTemp; // a la
+                    // fin c le dernier element dans zone
+                    elementTemp = elementTemp.suivant; //a la fin c le
+                    // premier element dans prochaine zone
+                    System.out.println("je suis entre");
+                }
+                // bien remettre les pointeurs
+                nouveauElement = new MaillonElement<Element>((MaillonElement) e);
+                nouveauElement.setSuivant(elementTemp);
+                precedentElementAvantProchaineZone.setSuivant(nouveauElement);
+            }else {
+                //s il n y a pas de zone apres celle la et que c la bonne zone
+                ajouter(e);
+            }
+        }else {
+            //CAS 2: si la zone existe pas
+            //TODO ajouter la zone avec son element
+//            nouvelleZone = new MaillonZone<Zone, Element>(z,
+//                    (MaillonElement)e, null);
+//            precedentZone.setSuivant(nouvelleZone);
+
+            //s il n existe pas de zone
+            nouvelleZone = new MaillonZone<Zone, Element>(z,
+                    (MaillonElement)e, null);
+            debutZone = nouvelleZone;
+           // nouvelleZone.setPointeurElement(ajouter(e));
+            ajouter(e);
+        }
+
+        System.out.println( "le debut de la zone : "+ debutZone);
     }
 
+    @Override
+    public String toString() {
+        return "ListeZone{" +
+                "debutElement=" + debutElement +
+                ", debutZone=" + debutZone +
+                '}';
+    }
 
     /**
      * Enleve le premier élément égal à <code>e</code> dans la zone <code>z</code>.

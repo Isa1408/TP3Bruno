@@ -1,25 +1,25 @@
 package TP3Package;
 
-public class MaillonZone <Zone> {
+public class MaillonZone <Zone, Element> {
 
-    char charZone;
+    Zone charZone;
     MaillonElement pointeurElement;
     MaillonZone suivant;
 
-    public MaillonZone(char charZone, MaillonElement pointeurElement,
-                       MaillonZone <Zone> suivant) {
+    public MaillonZone(Zone charZone, MaillonElement pointeurElement,
+                       MaillonZone suivant) {
         this.charZone = charZone;
         this.pointeurElement = pointeurElement;
         this.suivant = suivant;
     }
 
-    public char getCharZone() {
-        return charZone;
-    }
-
-    public void setCharZone(char charZone) {
-        this.charZone = charZone;
-    }
+//    public char getCharZone() {
+//        return charZone;
+//    }
+//
+//    public void setCharZone(char charZone) {
+//        this.charZone = charZone;
+//    }
 
     public MaillonElement getPointeurElement() {
         return pointeurElement;
@@ -35,5 +35,14 @@ public class MaillonZone <Zone> {
 
     public void setSuivant(MaillonZone suivant) {
         this.suivant = suivant;
+    }
+
+    @Override
+    public String toString() {
+        return "MaillonZone{" +
+                "charZone=" + charZone +
+                ", pointeurElement=" + pointeurElement +
+                ", suivant=" + suivant +
+                '}';
     }
 }
