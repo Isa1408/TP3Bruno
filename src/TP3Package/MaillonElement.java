@@ -1,7 +1,7 @@
 package TP3Package;
 
 public class MaillonElement<Element>{
-    Integer valeur;
+    Element typeValeur;
     MaillonElement<Element> suivant;
     MaillonElement<Element> courant;
 
@@ -9,23 +9,29 @@ public class MaillonElement<Element>{
         this(null, null);
     }
 
-    public MaillonElement(Integer valeur, MaillonElement<Element> suivant) {
-        this.valeur = valeur;
+    public MaillonElement(Element valeur, MaillonElement<Element> suivant) {
+        this.typeValeur = valeur;
         this.suivant = suivant;
     }
 
     public MaillonElement(MaillonElement<Element> courant) {
         //this.courant = courant;
         this.suivant = courant.suivant;
-        this.valeur = courant.valeur;
+        this.typeValeur = courant.typeValeur;
     }
 
-    public int getValeur() {
-        return valeur;
+    public MaillonElement(Element courant) {
+        //this.courant = courant;
+        this.suivant = null;
+        this.typeValeur = courant;
     }
 
-    public void setValeur(int valeur) {
-        this.valeur = valeur;
+    public Element getTypeValeur() {
+        return typeValeur;
+    }
+
+    public void setTypeValeur(Element typeValeur) {
+        this.typeValeur = typeValeur;
     }
 
     public MaillonElement getSuivant() {
@@ -48,7 +54,7 @@ public class MaillonElement<Element>{
     @Override
     public String toString() {
         return "MaillonElement{" +
-                "valeur=" + valeur +
+                "valeur=" + typeValeur +
                 ", suivant=" + suivant +
                 '}';
     }

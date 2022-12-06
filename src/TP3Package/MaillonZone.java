@@ -1,17 +1,20 @@
 package TP3Package;
 
+import javax.lang.model.element.Element;
+
 public class MaillonZone <Zone, Element> {
 
-    Zone charZone;
-    MaillonElement pointeurElement;
-    MaillonZone suivant;
+    Zone typeZone;
+    MaillonElement<Element> pointeurElement;
+    MaillonZone<Zone, Element> suivant;
 
-    public MaillonZone(Zone charZone, MaillonElement pointeurElement,
-                       MaillonZone suivant) {
-        this.charZone = charZone;
-        this.pointeurElement = pointeurElement;
+    public MaillonZone(Zone typeZone, Element element,
+                       MaillonZone<Zone, Element> suivant) {
+        this.typeZone = typeZone;
+        this.pointeurElement = new MaillonElement<>(element);
         this.suivant = suivant;
     }
+
 
 //    public char getCharZone() {
 //        return charZone;
@@ -40,7 +43,7 @@ public class MaillonZone <Zone, Element> {
     @Override
     public String toString() {
         return "MaillonZone{" +
-                "charZone=" + charZone +
+                "charZone=" + typeZone +
                 ", pointeurElement=" + pointeurElement +
                 ", suivant=" + suivant +
                 '}';
