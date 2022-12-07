@@ -1,27 +1,36 @@
 package TP3Package;
 
-public class MaillonElement<Element>{
+public class MaillonElement<Zone, Element>{
     Element typeValeur;
-    MaillonElement<Element> suivant;
-    MaillonElement<Element> courant;
+    Zone zoneParent;
+    MaillonElement<Zone, Element> suivant;
+    MaillonElement<Zone, Element> courant;
+    MaillonZone<Zone, Element> parent;
 
     public MaillonElement() {
-        this(null, null);
+        this(null, null, null);
     }
 
-    public MaillonElement(Element valeur, MaillonElement<Element> suivant) {
+    public MaillonElement(MaillonZone<Zone, Element> parent, Element valeur,
+                           MaillonElement<Zone, Element> suivant) {
+        this.parent = parent;
         this.typeValeur = valeur;
         this.suivant = suivant;
     }
 
-    public MaillonElement(MaillonElement<Element> courant) {
-        //this.courant = courant;
+    public MaillonElement(MaillonElement<Zone, Element> courant) {
         this.suivant = courant.suivant;
         this.typeValeur = courant.typeValeur;
     }
 
-    public MaillonElement(Element courant) {
-        //this.courant = courant;
+    public MaillonElement(MaillonZone<Zone, Element> zoneParent,Element courant) {
+        this.parent = zoneParent;
+        this.suivant = null;
+        this.typeValeur = courant;
+    }
+
+    public MaillonElement(Zone zoneParent,Element courant) {
+        this.zoneParent = zoneParent;
         this.suivant = null;
         this.typeValeur = courant;
     }

@@ -44,7 +44,7 @@ package TP3Package;
  * @param <Element> Le type des éléments placés dans la liste de base.
  */
 public class ListeZone< Zone, Element > {
-    MaillonElement<Element> debutElement;
+    MaillonElement<Zone, Element> debutElement;
     MaillonZone<Zone, Element> debutZone;
     int nbrElement;
     int nbrZone;
@@ -66,29 +66,20 @@ public class ListeZone< Zone, Element > {
     public void ajouter( Element e ) throws IndexOutOfBoundsException{
 
         //mettre si e est non null
-        MaillonElement<Element> courant = debutElement;
+        MaillonElement<Zone, Element> courant = debutElement;
+        MaillonZone<Zone, Element> finZone = debutZone;
 
         if (debutElement == null){
-            //debutElement =
-            //        new MaillonElement<Element>((MaillonElement<Element>) e);
             throw new IndexOutOfBoundsException();
-            //debutZone.toString();
         }else {
             while (courant.suivant != null){
                 courant = courant.suivant;
-                //debutZone.toString();
-                System.out.println(courant.toString());
             }
-
-            courant.setSuivant(new MaillonElement<Element>( e));
-
-
-            //System.out.println(courant);
-            System.out.println(debutElement.toString());
-
+            while (finZone.suivant != null){
+                finZone = finZone.suivant;
+            }
+            courant.setSuivant(new MaillonElement<Zone, Element>(finZone, e));
         }
-
-        //System.out.println(debutZone.toString());
     }
 
     /**
@@ -136,7 +127,7 @@ public class ListeZone< Zone, Element > {
                     System.out.println("je suis entre");
                 }
                 // bien remettre les pointeurs
-                nouveauElement = new MaillonElement<Element>(e);
+                nouveauElement = new MaillonElement<Zone, Element>(z, e);
                 nouveauElement.setSuivant(elementTemp);
                 precedentElementAvantProchaineZone.setSuivant(nouveauElement);
             }else {

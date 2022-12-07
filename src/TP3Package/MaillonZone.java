@@ -5,13 +5,13 @@ import javax.lang.model.element.Element;
 public class MaillonZone <Zone, Element> {
 
     Zone typeZone;
-    MaillonElement<Element> pointeurElement;
+    MaillonElement<Zone, Element> pointeurElement;
     MaillonZone<Zone, Element> suivant;
 
     public MaillonZone(Zone typeZone, Element element,
                        MaillonZone<Zone, Element> suivant) {
         this.typeZone = typeZone;
-        this.pointeurElement = new MaillonElement<>(element);
+        this.pointeurElement = new MaillonElement(typeZone, element);
         this.suivant = suivant;
     }
 
