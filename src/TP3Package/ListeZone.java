@@ -206,7 +206,64 @@ public class ListeZone< Zone, Element > {
      * @return \(e \in suivant( z )\)
      */
     public boolean contientX( Zone z, Element e ) {
-        return false;
+        //TODO verifier que z et e ne sont pas null
+            //TODO aller a la zone z, si la zone z existe pas alors on retourne
+            // false
+            //TODO si la zone z existe, aller a la zone suivante de z et iterer
+            // dans les elements jusqu a trouver e
+                //TODO si e existe pas alors false
+        MaillonZone courantZone = debutZone;
+        MaillonZone precedentZone = null;
+        MaillonZone nouvelleZone = null;
+        MaillonElement elementDansCourantZone;
+        MaillonZone prochaineZone;
+        MaillonElement elementDansProchaineZone;
+        boolean elementTrouve = false;
+        boolean existeProchaineZone = false;
+        if (z != null && e != null){
+            //verifier si zone z existe
+            while (courantZone != null && courantZone.typeZone != z ){
+                precedentZone = courantZone;
+                courantZone = courantZone.suivant;
+            }
+
+            //si la zone existe alors ca ne va pas etre null
+            if(courantZone != null){
+                if (courantZone.suivant != null){
+                    existeProchaineZone = true;
+
+                    //TODO
+                    courantZone = courantZone.suivant;
+                    // je dois le savoir avant de commencer
+                    prochaineZone = courantZone.suivant;
+                    elementDansProchaineZone = prochaineZone.pointeurElement;
+
+                    elementDansCourantZone = courantZone.pointeurElement;
+                    //element trouve est le premier element dans la zone
+                    // initiale
+                    if(courantZone.pointeurElement == e){
+                        elementTrouve = true;
+                    }else { //voir si on peut trouver l element dans la zone
+                        while (elementDansCourantZone != e &&
+                                elementDansCourantZone != elementDansProchaineZone ){
+                            elementDansCourantZone =
+                                    elementDansCourantZone.suivant;
+                        }
+                        // element trouve dans la zone initiale
+                        if(elementDansCourantZone == e){
+                            elementTrouve = true;
+                        }
+                    }
+                }
+            }else {//la zone z existe pas
+                elementTrouve = false;
+            }
+
+        }
+        if(!existeProchaineZone){
+            elementTrouve = false;
+        }
+        return elementTrouve;
     }
 
     /**
