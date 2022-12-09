@@ -239,7 +239,8 @@ public class ListeZone< Zone, Element > {
         MaillonElement elementDansProchaineZone;
         boolean zoneSuivant;
         boolean trouveDansZoneInit = false;
-        boolean trouveDansProchainesZones = false;
+        boolean trouveDansToutesProchainesZones = false;
+        boolean trouveDansProchaineZone = false;
         boolean existeProchaineZone = false;
 
         //TODO aller a la zone z, prendre son pointeur element, aller a la
@@ -291,10 +292,40 @@ public class ListeZone< Zone, Element > {
                         courantZone = prochaineZone;
                         if(courantZone.suivant != null){ //s il existe des
                             // prochaines zones
-                            prochaineZone = courantZone.suivant;
-                            existeProchaineZone = true;
 
+
+                            //trouveDansProchaineZone = true;
+                            trouveDansToutesProchainesZones = true;
                             //TODO
+                            while(trouveDansToutesProchainesZones && prochaineZone.suivant != null){
+                                prochaineZone = courantZone.suivant;
+                                existeProchaineZone = true;
+                                elementDansProchaineZone = prochaineZone.pointeurElement;
+
+                                elementDansCourantZone = courantZone.pointeurElement;
+                                //element trouve est le premier element dans la zone
+                                // initiale
+                                if(courantZone.pointeurElement == e){
+                                    trouveDansZoneInit = true;
+                                }else { //voir si on peut trouver l element dans la zone
+                                    while (elementDansCourantZone != e &&
+                                            elementDansCourantZone != elementDansProchaineZone ){
+                                        elementDansCourantZone =
+                                                elementDansCourantZone.suivant;
+                                    }
+                                    // element trouve dans la zone suivante
+                                    if(elementDansCourantZone == e){
+                                        trouveDansProchaineZone = true;
+                                        trouveDansToutesProchainesZones = true;
+                                    }else {
+                                        trouveDansProchaineZone = false;
+                                    }
+
+                                    if (!trouveDansProchaineZone){
+                                        trouveDansToutesProchainesZones = false;
+                                    }
+                                }
+                            }
 
 
                         }else { // si c la derniere zone
@@ -318,13 +349,6 @@ public class ListeZone< Zone, Element > {
                         }
 
                     } //pas trouve dans la zone init
-
-
-
-
-
-
-
 
                 }else{ //si c la derniere zone
                     elementDansCourantZone = courantZone.pointeurElement;
@@ -355,14 +379,14 @@ public class ListeZone< Zone, Element > {
             }
         }
 
-        if(existeProchaineZone && trouveDansZoneInit && trouveDansProchainesZones){
+        if(existeProchaineZone && trouveDansZoneInit && trouveDansToutesProchainesZones){
             trouve = true;
         }
 
         if(!existeProchaineZone && trouveDansZoneInit){
             trouve = true;
         }
-        //return false;//ecq je dois le laisse comme ca?
+
         return trouve;
     }
 
