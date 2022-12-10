@@ -170,12 +170,14 @@ public class ListeZone< Zone, Element > {
                 // debutElement = new MaillonElement<>(z, e);
                 //ajouter(e);
                 debutElement = nouvelleZone.getPointeurElement();
+
             }else {
                 precedentZone.setSuivant(new MaillonZone<>(z, e, null));
                 while (courantElement != null){
                     precedentElement = courantElement;
                     courantElement = courantElement.suivant;
                 }
+
                 precedentElement.setSuivant(new MaillonElement<>(z, e));
             }
 
@@ -274,11 +276,15 @@ public class ListeZone< Zone, Element > {
                         if(courantZone.suivant != null){
                             prochaineZone = courantZone.suivant;
                             elementDansProchaineZone = prochaineZone.pointeurElement;
-                            while (elementDansCourantZone != e &&
+                            while (elementDansCourantZone != null && elementDansCourantZone != e &&
                                     elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur ){
                                 precedentElement = elementDansCourantZone;
                                 elementDansCourantZone =
                                         elementDansCourantZone.suivant;
+                            }
+                            // element trouve dans la zone initiale
+                            if( precedentElement != null && precedentElement.typeValeur == e){
+                                elementTrouve = true;
                             }
                         }else {
                             while (elementDansCourantZone != null && elementDansCourantZone.typeValeur != e &&
@@ -287,12 +293,12 @@ public class ListeZone< Zone, Element > {
                                 elementDansCourantZone =
                                         elementDansCourantZone.suivant;
                             }
+                            // element trouve dans la zone initiale
+                            if( elementDansCourantZone != null && elementDansCourantZone.typeValeur == e){
+                                elementTrouve = true;
+                            }
                         }
 
-                        // element trouve dans la zone initiale
-                        if(elementDansCourantZone.typeValeur == e){
-                            elementTrouve = true;
-                        }
                     }
                 }
             }else {//la zone z existe pas
