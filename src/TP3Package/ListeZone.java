@@ -68,6 +68,8 @@ public class ListeZone< Zone, Element > {
         //mettre si e est non null
         MaillonElement<Zone, Element> courant = debutElement;
         MaillonZone<Zone, Element> finZone = debutZone;
+        MaillonElement courantElement;
+        MaillonElement precedentElement = null;
 
         if (debutZone == null){
             throw new IndexOutOfBoundsException();
@@ -79,8 +81,18 @@ public class ListeZone< Zone, Element > {
                 while (finZone.suivant != null){
                     finZone = finZone.suivant;
                 }
+
+                courantElement = finZone.pointeurElement;
+                while (courantElement != null){
+                    precedentElement = courantElement;
+                    courantElement = courantElement.suivant;
+                }
+                precedentElement.setSuivant(new MaillonElement<>(finZone, e));
+
             }
+
             courant.setSuivant(new MaillonElement<Zone, Element>(finZone, e));
+
         }
     }
 
@@ -101,6 +113,8 @@ public class ListeZone< Zone, Element > {
         MaillonZone precedentZone = null;
         MaillonZone<Zone, Element> nouvelleZone = null;
         MaillonElement nouveauElement;
+        MaillonElement courantElement = debutElement;
+        MaillonElement precedentElement = null;
 
         //CAS 1: si la zone existe
         // si courantZone == null alors il n y a pas de zones ds la liste
@@ -123,7 +137,7 @@ public class ListeZone< Zone, Element > {
                 premierElementDansProchaineZone = prochaineZone.getPointeurElement();
                 elementTemp = debutElement;
 
-                while (elementTemp != null && elementTemp != premierElementDansProchaineZone ){
+                while (elementTemp != null && elementTemp.typeValeur != premierElementDansProchaineZone.typeValeur ){
                     precedentElementAvantProchaineZone = elementTemp; // a la
                     // fin c le dernier element dans zone
                     elementTemp = elementTemp.suivant; //a la fin c le
@@ -146,15 +160,25 @@ public class ListeZone< Zone, Element > {
 //            precedentZone.setSuivant(nouvelleZone);
 
 
-            //TODO je pense que c bon (a revoir)
-            //s il n existe pas de zone
-            nouvelleZone = new MaillonZone<>(z,
-                     e, null);
-            debutZone = nouvelleZone;
-           // nouvelleZone.setPointeurElement(ajouter(e));
-           // debutElement = new MaillonElement<>(z, e);
-            //ajouter(e);
-            debutElement = nouvelleZone.getPointeurElement();
+            if(debutZone == null){
+                //TODO je pense que c bon (a revoir)
+                //s il n existe pas de zone
+                nouvelleZone = new MaillonZone<>(z,
+                        e, null);
+                debutZone = nouvelleZone;
+                // nouvelleZone.setPointeurElement(ajouter(e));
+                // debutElement = new MaillonElement<>(z, e);
+                //ajouter(e);
+                debutElement = nouvelleZone.getPointeurElement();
+            }else {
+                precedentZone.setSuivant(new MaillonZone<>(z, e, null));
+                while (courantElement != null){
+                    precedentElement = courantElement;
+                    courantElement = courantElement.suivant;
+                }
+                precedentElement.setSuivant(new MaillonElement<>(z, e));
+            }
+
         }
 
         System.out.println( "le debut de la zone : "+ debutZone);
@@ -218,6 +242,7 @@ public class ListeZone< Zone, Element > {
         MaillonElement elementDansCourantZone;
         MaillonZone prochaineZone;
         MaillonElement elementDansProchaineZone;
+        MaillonElement precedentElement = null;
         boolean elementTrouve = false;
         boolean existeProchaineZone = false;
         if (z != null && e != null){
@@ -233,24 +258,39 @@ public class ListeZone< Zone, Element > {
                     existeProchaineZone = true;
 
                     //TODO
+
                     courantZone = courantZone.suivant;
                     // je dois le savoir avant de commencer
-                    prochaineZone = courantZone.suivant;
-                    elementDansProchaineZone = prochaineZone.pointeurElement;
+
+
 
                     elementDansCourantZone = courantZone.pointeurElement;
                     //element trouve est le premier element dans la zone
                     // initiale
-                    if(courantZone.pointeurElement == e){
+                    if(courantZone.pointeurElement.typeValeur == e){
                         elementTrouve = true;
                     }else { //voir si on peut trouver l element dans la zone
-                        while (elementDansCourantZone != e &&
-                                elementDansCourantZone != elementDansProchaineZone ){
-                            elementDansCourantZone =
-                                    elementDansCourantZone.suivant;
+
+                        if(courantZone.suivant != null){
+                            prochaineZone = courantZone.suivant;
+                            elementDansProchaineZone = prochaineZone.pointeurElement;
+                            while (elementDansCourantZone != e &&
+                                    elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur ){
+                                precedentElement = elementDansCourantZone;
+                                elementDansCourantZone =
+                                        elementDansCourantZone.suivant;
+                            }
+                        }else {
+                            while (elementDansCourantZone != null && elementDansCourantZone.typeValeur != e &&
+                                    elementDansCourantZone.typeValeur != null){
+                                precedentElement = elementDansCourantZone;
+                                elementDansCourantZone =
+                                        elementDansCourantZone.suivant;
+                            }
                         }
+
                         // element trouve dans la zone initiale
-                        if(elementDansCourantZone == e){
+                        if(elementDansCourantZone.typeValeur == e){
                             elementTrouve = true;
                         }
                     }
@@ -294,6 +334,7 @@ public class ListeZone< Zone, Element > {
         MaillonElement elementDansCourantZone;
         MaillonZone prochaineZone;
         MaillonElement elementDansProchaineZone;
+        MaillonElement precedentElement = null;
         boolean zoneSuivant;
         boolean trouveDansZoneInit = false;
         boolean trouveDansToutesProchainesZones = false;
@@ -325,21 +366,23 @@ public class ListeZone< Zone, Element > {
 
                     // je dois le savoir avant de commencer
                     prochaineZone = courantZone.suivant;
-                    elementDansProchaineZone = prochaineZone.pointeurElement;
+                    elementDansProchaineZone =
+                            prochaineZone.getPointeurElement();
 
-                    elementDansCourantZone = courantZone.pointeurElement;
+                    elementDansCourantZone = courantZone.getPointeurElement();
                     //element trouve est le premier element dans la zone
                     // initiale
-                    if(courantZone.pointeurElement == e){
+                    if(courantZone.pointeurElement.typeValeur == e){
                         trouveDansZoneInit = true;
                     }else { //voir si on peut trouver l element dans la zone
                         while (elementDansCourantZone != e &&
-                                elementDansCourantZone != elementDansProchaineZone ){
+                                elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur && elementDansCourantZone.suivant != null){
+                            precedentElement = elementDansCourantZone;
                             elementDansCourantZone =
                                     elementDansCourantZone.suivant;
                         }
                         // element trouve dans la zone initiale
-                        if(elementDansCourantZone == e){
+                        if(precedentElement.typeValeur == e){
                             trouveDansZoneInit = true;
                         }
                     }
@@ -362,7 +405,7 @@ public class ListeZone< Zone, Element > {
                                 elementDansCourantZone = courantZone.pointeurElement;
                                 //element trouve est le premier element dans la zone
                                 // initiale
-                                if(courantZone.pointeurElement == e){
+                                if(courantZone.pointeurElement.typeValeur == e){
                                     trouveDansZoneInit = true;
                                 }else { //voir si on peut trouver l element dans la zone
                                     while (elementDansCourantZone != e &&
@@ -371,7 +414,7 @@ public class ListeZone< Zone, Element > {
                                                 elementDansCourantZone.suivant;
                                     }
                                     // element trouve dans la zone suivante
-                                    if(elementDansCourantZone == e){
+                                    if(elementDansCourantZone.typeValeur == e){
                                         trouveDansProchaineZone = true;
                                         trouveDansToutesProchainesZones = true;
                                     }else {
