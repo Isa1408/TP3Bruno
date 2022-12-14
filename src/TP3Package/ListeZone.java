@@ -620,8 +620,209 @@ public class ListeZone< Zone, Element > {
      * @return \(z_k = premiere( z, e2 ), r_k \not= \bottom \wedge \forall z_i \in [z..z_k[, e1 \in z_i\)
      */
     public boolean contientU( Zone z, Element e1, Element e2 ) {
-        return false;
+        //TODO e2 doit etre dans la zone z ou dans une zone suivant z
+            //TODO si e2 true
+                // TODO alors e1 doit etre dans z et dans chaque zone apres z
+                //  et avant la zone ou e2 a ete trouve
+                // TODO donc si on a z comme derniere zone alors e1 va etre
+                //  true peu importe sa valeur (pcq inclusif - exclusif)
+            //TODO si false alors on retourne false
+        MaillonZone courantZone = debutZone;
+        MaillonZone zoneInit = null;
+        MaillonZone zoneE2Trouve = null;
+        MaillonZone precedentZone = null;
+        MaillonElement elementDansCourantZone;
+        MaillonZone prochaineZone;
+        MaillonElement elementDansProchaineZone;
+        MaillonElement precedentElement = null;
+        boolean trouveDansProchaineZone = false;
+        boolean existeProchaineZone = false;
+        boolean lesDeuxTrouve = false;
+        boolean e2Trouve = false;
+        boolean e1Trouve = false;
+        boolean e1TrouveDansChaqueZones = false;
+        boolean unTour = true;
+
+        if (z != null && e2 != null && e1 != null) {
+            //verifier si zone z existe
+            while (courantZone != null && courantZone.typeZone != z) {
+                unTour = false;
+                precedentZone = courantZone;
+                courantZone = courantZone.suivant;
+            }
+            if (courantZone != null) {//la zone z existe
+                zoneInit = courantZone;
+                if (courantZone.suivant != null) {//savoir si j ai d autres zones
+                    // je dois le savoir avant de commencer
+                    prochaineZone = courantZone.suivant;
+                    elementDansProchaineZone =
+                            prochaineZone.getPointeurElement();
+                    elementDansCourantZone = courantZone.getPointeurElement();
+                    //element trouve est le premier element dans la zone
+                    // initiale
+                    if (courantZone.pointeurElement.typeValeur == e2 || elementDansProchaineZone.typeValeur == e2) {
+                        e2Trouve = true;
+                        if(courantZone.pointeurElement.typeValeur == e1 || elementDansProchaineZone.typeValeur == e1){
+                            //si e1 est le premier element dans la zone init
+                            e1Trouve = true;
+                            lesDeuxTrouve = true;
+                        }
+                        if(unTour){
+                            lesDeuxTrouve = true;
+                        }
+                    } else { //voir si on peut trouver l element dans la zone
+                        precedentElement = elementDansCourantZone;
+                        if(elementDansCourantZone.suivant != null){
+                            elementDansCourantZone = elementDansCourantZone.suivant;
+                        }
+
+                        while (elementDansCourantZone.typeValeur != e2 &&
+                                elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur && elementDansCourantZone.suivant != null) {
+                            precedentElement = elementDansCourantZone;
+                            elementDansCourantZone =
+                                    elementDansCourantZone.suivant;
+                        }
+                        // element trouve dans la zone initiale
+                        if (precedentElement.typeValeur == e2 || elementDansCourantZone.typeValeur == e2) {
+                            e2Trouve = true;
+                            if(unTour){
+                                lesDeuxTrouve = true;
+                            }
+                        }else {//aller dans les prochaines zones pour essayer
+                            // de trouver e
+                            prochaineZone = courantZone;
+                            while(!trouveDansProchaineZone && prochaineZone.suivant != null){
+                                prochaineZone = courantZone;
+                                existeProchaineZone = true;
+                                elementDansProchaineZone = prochaineZone.pointeurElement;
+
+                                elementDansCourantZone = courantZone.pointeurElement;
+                                //element trouve est le premier element dans la zone
+                                // initiale
+                                if(courantZone.pointeurElement.typeValeur == e2){
+                                    e2Trouve = true;
+                                    trouveDansProchaineZone = true;
+                                }else { //voir si on peut trouver l element dans la zone
+                                    if(elementDansCourantZone.suivant != null){
+                                        elementDansCourantZone = elementDansCourantZone.suivant;
+                                    }
+                                    while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e2 &&
+                                            elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur){
+                                        elementDansCourantZone =
+                                                elementDansCourantZone.suivant;
+                                    }
+                                    // element trouve dans la zone suivante
+                                    if(elementDansCourantZone.typeValeur == e2){
+                                        e2Trouve = true;
+                                        trouveDansProchaineZone = true;
+                                    }else {
+                                        trouveDansProchaineZone = false;
+                                        courantZone = courantZone.suivant;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(e2Trouve && !lesDeuxTrouve){
+                        //TODO
+                        zoneE2Trouve = courantZone;
+                        courantZone = zoneInit;
+
+                       // courantZone = prochaineZone;
+
+                        if(courantZone.suivant != null){ //s il existe des
+                            // prochaines zones
+                            existeProchaineZone = true;
+
+                            e1TrouveDansChaqueZones = true;
+
+                            while(prochaineZone.suivant != null && e1TrouveDansChaqueZones
+                                    && prochaineZone.suivant.pointeurElement.typeValeur != zoneE2Trouve.pointeurElement.typeValeur){
+                                prochaineZone = courantZone;
+                                existeProchaineZone = true;
+                                elementDansProchaineZone = prochaineZone.pointeurElement;
+
+                                elementDansCourantZone = courantZone.pointeurElement;
+                                //element trouve est le premier element dans la zone
+                                // initiale
+                                if(courantZone.pointeurElement.typeValeur == e1){
+//                                    trouveDansZoneInit = true;
+                                    courantZone = courantZone.suivant;
+                                }else { //voir si on peut trouver l element dans la zone
+                                    prochaineZone = courantZone.suivant;
+
+                                    if(prochaineZone != null){
+                                        elementDansProchaineZone = prochaineZone.pointeurElement;
+                                    }
+
+                                    while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e1 &&
+                                            elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur ){
+                                        elementDansCourantZone =
+                                                elementDansCourantZone.suivant;
+                                    }
+                                    // element trouve dans la zone suivante
+                                    if(elementDansCourantZone.typeValeur == e1){
+                                        trouveDansProchaineZone = true;
+                                        e1TrouveDansChaqueZones = true;
+                                    }else {
+                                        trouveDansProchaineZone = false;
+                                    }
+
+                                    if (!trouveDansProchaineZone){
+                                        e1TrouveDansChaqueZones = false;
+                                    }
+                                }
+                            }
+
+
+                        }else { // si c la derniere zone
+                            elementDansCourantZone = courantZone.pointeurElement;
+                            //pour le premier
+                            if (elementDansCourantZone.typeValeur == e1){
+                                lesDeuxTrouve = true;
+                            }
+
+                            if(!lesDeuxTrouve){
+                                //TODO je pense que c bon (a revoir)
+                                while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e1){
+                                    elementDansCourantZone = elementDansCourantZone.suivant;
+                                }
+
+                                //pour le dernier element de la liste de base
+                                if (elementDansCourantZone.typeValeur == e1){
+                                    lesDeuxTrouve = true;
+                                }
+                            }
+                        }
+
+                    }
+
+                } else {// si c la derniere zone alors e1 est tjr true
+                    elementDansCourantZone = courantZone.pointeurElement;
+                    //pour le premier
+                    if (elementDansCourantZone.typeValeur == e2){
+                        lesDeuxTrouve = true;
+                    }
+
+                    if(!lesDeuxTrouve){
+                        while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e2){
+                            elementDansCourantZone = elementDansCourantZone.suivant;
+                        }
+
+                        //pour le dernier element de la liste de base
+                        if (elementDansCourantZone.typeValeur == e2){
+                            lesDeuxTrouve = true;
+                        }
+                    }
+                }
+            }
+        }
+        if(e2Trouve && e1TrouveDansChaqueZones){
+            lesDeuxTrouve = true;
+        }
+        return lesDeuxTrouve;
     }
+
 
     /**
      * Vérifie que l'élément <code>e2</code> ce trouve dans <code>z</code> ou dans
