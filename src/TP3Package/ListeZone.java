@@ -1079,7 +1079,124 @@ public class ListeZone< Zone, Element > {
     \vee ( r_k = \bottom \wedge \forall z_i \in [z..z_m], e1 \in z_i )\)
      */
     public boolean contientR( Zone z, Element e1, Element e2 ) {
-        return false;
+        MaillonZone courantZone = debutZone;
+        MaillonZone precedentZone = null;
+        MaillonElement elementDansCourantZone;
+        MaillonZone prochaineZone = null;
+        MaillonZone zoneInit;
+        String zoneE2Trouve = "";
+        String finZoneE2 = "";
+        boolean lesDeuxTrouve = false;
+        boolean e2Trouve = false;
+        boolean e1Trouve = false;
+        boolean e2DerniereZone = false;
+
+        if(z != null && e1 != null && e2 != null){
+            //verifier si zone z existe
+            while (courantZone != null && courantZone.typeZone != z) {
+                precedentZone = courantZone;
+                courantZone = courantZone.suivant;
+            }
+            if (courantZone != null) {//la zone z existe
+                zoneInit = courantZone;
+                if(courantZone.suivant != null){//savoir si j ai d autres zones
+                    elementDansCourantZone = courantZone.pointeurElement;
+                    if (elementDansCourantZone.typeValeur == e2){
+                        e2Trouve = true;
+                        zoneE2Trouve =
+                                courantZone.typeZone.toString();
+                        prochaineZone = courantZone.suivant;
+                        finZoneE2 = prochaineZone.typeZone.toString();
+                    }
+                    prochaineZone = courantZone.suivant;
+
+                    if(!e2Trouve){
+                        while ((elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e2)){
+                            elementDansCourantZone = elementDansCourantZone.suivant;
+                            if((elementDansCourantZone.parent != null
+                                    && !courantZone.typeZone.toString().equals(elementDansCourantZone.parent.toString()))
+                                    || (elementDansCourantZone.zoneParent != null
+                                    && !courantZone.typeZone.toString().equals(elementDansCourantZone.zoneParent.toString()))){
+                                precedentZone = courantZone;
+                                prochaineZone = courantZone.suivant;
+                                courantZone = courantZone.suivant;
+                            }
+                        }
+
+                        if (elementDansCourantZone.typeValeur == e2){
+                            e2Trouve = true;
+                            zoneE2Trouve =
+                                    precedentZone.typeZone.toString();
+                            prochaineZone = precedentZone.suivant;
+
+                            if(prochaineZone != null){
+                                finZoneE2 =
+                                        prochaineZone.typeZone.toString();
+                            }else {
+                                e2DerniereZone = true;
+                            }
+                        }
+                    }
+                    elementDansCourantZone = zoneInit.pointeurElement;
+                    if (elementDansCourantZone.typeValeur == e1){
+                        e1Trouve = true;
+                    }
+
+                    //////////////////
+                    if(!e1Trouve && !e2DerniereZone){
+                        do{
+                            if(elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e1){
+                                elementDansCourantZone = elementDansCourantZone.suivant;
+                            }
+
+                            if (elementDansCourantZone.typeValeur == e1){
+                                e1Trouve = true;
+                            }
+                        }while ((elementDansCourantZone.parent != null && !elementDansCourantZone.parent.toString().equals(finZoneE2))
+                                || ( elementDansCourantZone.zoneParent != null && !elementDansCourantZone.zoneParent.toString().equals(finZoneE2)));
+                    }
+                    //////////////////
+
+                    if((!e1Trouve && e2DerniereZone) || !e2Trouve){
+                        while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e1){
+                            elementDansCourantZone = elementDansCourantZone.suivant;
+                        }
+
+                        if (elementDansCourantZone.typeValeur == e1){
+                            e1Trouve = true;
+                            lesDeuxTrouve = true;
+                        }
+                    }
+
+                    if(e1Trouve && e2DerniereZone){
+                        lesDeuxTrouve = true;
+                    }
+
+                    if(e1Trouve && e2Trouve){
+                        lesDeuxTrouve = true;
+                    }
+
+                }else {//derniere zone
+                    elementDansCourantZone = courantZone.pointeurElement;
+                    if (elementDansCourantZone.typeValeur == e1){
+                        e1Trouve = true;
+                        lesDeuxTrouve = true;
+                    }
+
+                    if(!e1Trouve){
+                        while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e1){
+                            elementDansCourantZone = elementDansCourantZone.suivant;
+                        }
+
+                        if (elementDansCourantZone.typeValeur == e1){
+                            e1Trouve = true;
+                            lesDeuxTrouve = true;
+                        }
+                    }
+                }
+            }//zone existe pas
+        }
+        return lesDeuxTrouve;
     }
 
     /**
