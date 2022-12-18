@@ -220,7 +220,76 @@ public class ListeZone< Zone, Element > {
      * @param z
      */
     public void avancer( Zone z ) {
+        MaillonZone courantZone = debutZone;
+        MaillonZone precedentZone = null;
+        MaillonElement elementPrecedentZone = null;
+        MaillonElement precedentElement = null;
+        boolean unTour = true;
+        boolean fini = false;
 
+        if(z != null){
+            while (courantZone != null && courantZone.typeZone != z ){
+                precedentZone = courantZone;
+                courantZone = courantZone.suivant;
+                unTour = false;
+            }
+            //si la zone existe alors ca ne va pas etre null
+            if(courantZone != null){
+                //TODO
+                if(unTour){ // z est la premiere zone
+                    if(courantZone.pointeurElement.zoneParent != null
+                            && courantZone.pointeurElement.suivant.zoneParent != null
+                            && !courantZone.pointeurElement.zoneParent.toString().equals(courantZone.pointeurElement.suivant.zoneParent.toString())){
+                        debutZone = courantZone.suivant;
+                        debutElement = courantZone.suivant.pointeurElement;
+                        courantZone.setPointeurElement(null);
+                        courantZone.setSuivant(null);
+                    }else {
+                        courantZone.pointeurElement =
+                                courantZone.pointeurElement.suivant;
+                    }
+                    fini = true;
+                }else { // z n'est pas la premiere zone
+                    //si l'element est le dernier de la liste
+                    if(courantZone.suivant == null
+                            && courantZone.pointeurElement.suivant == null){
+                        precedentZone.suivant = null;
+                        elementPrecedentZone =
+                                precedentZone.pointeurElement.suivant;
+
+                        while (elementPrecedentZone.suivant != null){
+                            precedentElement = elementPrecedentZone;
+                            elementPrecedentZone = elementPrecedentZone.suivant;
+                        }
+
+                        if(precedentElement != null){
+                            precedentElement.suivant = null;
+                            fini = true;
+                        }
+
+                    }else { // si on est au milieu
+                        elementPrecedentZone =
+                                precedentZone.pointeurElement;
+                        while (elementPrecedentZone.suivant != null && (elementPrecedentZone.zoneParent != null
+                                && !elementPrecedentZone.zoneParent.toString().equals(courantZone.typeZone.toString()))
+                                || (elementPrecedentZone.parent != null
+                                && !elementPrecedentZone.parent.toString().equals(courantZone.typeZone.toString()))){
+                            precedentElement = elementPrecedentZone;
+                            elementPrecedentZone = elementPrecedentZone.suivant;
+                        }
+                        if(precedentElement != null){
+                            precedentElement.setSuivant(courantZone.pointeurElement);
+                            precedentElement.suivant.setZoneParent(precedentZone.typeZone);
+                            courantZone.setPointeurElement(courantZone.pointeurElement.suivant);
+                            if(courantZone.pointeurElement == null){
+                                precedentZone.setSuivant(courantZone.suivant);
+                            }
+                            fini = true;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**

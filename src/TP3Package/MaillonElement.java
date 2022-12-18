@@ -51,7 +51,15 @@ public class MaillonElement<Zone, Element>{
         this.suivant = suivant;
     }
 
-//    @Override
+    public void setZoneParent(Zone zoneParent) {
+        this.zoneParent = zoneParent;
+    }
+
+    public void setParent(MaillonZone<Zone, Element> parent) {
+        this.parent = parent;
+    }
+
+    //    @Override
 //    public String toString() {
 //        return "MaillonElement{" +
 //                "courant=" + courant +
