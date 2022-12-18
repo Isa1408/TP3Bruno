@@ -205,6 +205,56 @@ public class ListeZone< Zone, Element > {
      * @param e l'élément à enlevé.
      */
     public void enlever( Zone z, Element e ) {
+        MaillonZone courantZone = debutZone;
+        MaillonZone precedentZone = null;
+        MaillonElement elementPrecedentZone = null;
+        MaillonElement precedentElement = null;
+        boolean unTour = true;
+        boolean fini = false;
+
+        if(z != null && e != null){
+            while (courantZone != null && courantZone.typeZone != z ){
+                precedentZone = courantZone;
+                courantZone = courantZone.suivant;
+                unTour = false;
+            }
+
+            if(courantZone != null){ // z existe
+
+                // e est le seul element de la zone
+                if(courantZone.pointeurElement.typeValeur == e && courantZone.pointeurElement.zoneParent != null
+                        && courantZone.pointeurElement.suivant != null
+                        && courantZone.pointeurElement.suivant.zoneParent != null
+                        && !courantZone.pointeurElement.zoneParent.toString().equals(courantZone.pointeurElement.suivant.zoneParent.toString())){
+
+                    if(!unTour){
+                        elementPrecedentZone =
+                                precedentZone.pointeurElement;
+                        while (elementPrecedentZone.suivant != null && (elementPrecedentZone.zoneParent != null
+                                && !elementPrecedentZone.zoneParent.toString().equals(courantZone.typeZone.toString()))
+                                || (elementPrecedentZone.parent != null
+                                && !elementPrecedentZone.parent.toString().equals(courantZone.typeZone.toString()))){
+                            precedentElement = elementPrecedentZone;
+                            elementPrecedentZone = elementPrecedentZone.suivant;
+                        }
+                        if(precedentElement != null){
+                            precedentElement.setSuivant(courantZone.pointeurElement);
+                            precedentElement.suivant.setZoneParent(precedentZone.typeZone);
+                            courantZone.setPointeurElement(courantZone.pointeurElement.suivant);
+                            if(courantZone.pointeurElement == null){
+                                precedentZone.setSuivant(courantZone.suivant);
+                                fini = true;
+                            }
+                        }
+                    }
+
+                }
+                //premier element ds la zone mais pas le seul de la zone
+                if(courantZone.pointeurElement.typeValeur == e && !fini){
+                    avancer(z);
+                }
+            }// z existe pas
+        }// z ou e est null
 
     }
 
