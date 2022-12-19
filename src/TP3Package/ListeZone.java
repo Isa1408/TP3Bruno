@@ -1,4 +1,10 @@
 package TP3Package;
+/**
+ * @Author Isabelle Tamas
+ * Code permanent: TAMI76580208
+ * Présenté à: Bruno Malenfant
+ * Date: 18 décembre 2022
+ */
 
 /**
  *<p>
