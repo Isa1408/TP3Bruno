@@ -488,11 +488,10 @@ public class ListeZone< Zone, Element > {
     public boolean contientF( Zone z, Element e ) {
         MaillonZone courantZone = debutZone;
         MaillonZone precedentZone = null;
-        MaillonElement elementDansCourantZone;
+        MaillonElement elementDansCourantZone = null;
         MaillonZone prochaineZone;
         MaillonElement elementDansProchaineZone;
         MaillonElement precedentElement = null;
-        boolean trouveDansProchaineZone = false;
         boolean existeProchaineZone = false;
         boolean trouve = false;
 
@@ -511,64 +510,111 @@ public class ListeZone< Zone, Element > {
                     if (courantZone.pointeurElement.typeValeur == e || elementDansProchaineZone.typeValeur == e) {
                         trouve = true;
                     } else {
-                        precedentElement = elementDansCourantZone;
-                        if(elementDansCourantZone.suivant != null){
-                            elementDansCourantZone = elementDansCourantZone.suivant;
-                        }
-
-                        while (elementDansCourantZone.typeValeur != e &&
-                                elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur && elementDansCourantZone.suivant != null) {
-                            precedentElement = elementDansCourantZone;
-                            elementDansCourantZone =
-                                    elementDansCourantZone.suivant;
-                        }
-                        if (precedentElement.typeValeur == e || elementDansCourantZone.typeValeur == e) {
-                            trouve = true;
-                        }else {
-                            while(!trouveDansProchaineZone && prochaineZone.suivant != null){
-                                prochaineZone = courantZone;
-                                existeProchaineZone = true;
-                                elementDansProchaineZone = prochaineZone.pointeurElement;
-                                elementDansCourantZone = courantZone.pointeurElement;
-
-                                if(courantZone.pointeurElement.typeValeur == e){
-                                    trouve = true;
-                                    trouveDansProchaineZone = true;
-                                }else {
-                                    if(elementDansCourantZone.suivant != null){
-                                        elementDansCourantZone = elementDansCourantZone.suivant;
-                                    }
-                                    while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e &&
-                                            elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur){
-                                        elementDansCourantZone =
-                                                elementDansCourantZone.suivant;
-                                    }
-                                    if(elementDansCourantZone.typeValeur == e){
-                                        trouveDansProchaineZone = true;
-                                    }else {
-                                        trouveDansProchaineZone = false;
-                                        courantZone = courantZone.suivant;
-                                    }
-                                }
-                            }
-                        }
+                        trouve = elementNestPasLePremierDansLaZone(e, courantZone, elementDansCourantZone, prochaineZone, elementDansProchaineZone);
                     }
 
                 } else {
-                    elementDansCourantZone = courantZone.pointeurElement;
-                    if (elementDansCourantZone.typeValeur == e){
-                        trouve = true;
-                    }
+                    trouve = trouverElementDansDerniereZone(courantZone, e);
+                }
+            }
+        }
+        return trouve;
+    }
 
-                    if(!trouve){
-                        while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e){
-                            elementDansCourantZone = elementDansCourantZone.suivant;
-                        }
+    /**
+     * Trouver l'élément dans la zone z. Si l'élément recherché n'est pas
+     * trouvé, aller le chercher dans les prochaines zones.
+     *
+     * @param e élément recherché
+     * @param courantZone la zone courante (z)
+     * @param elementDansCourantZone le premier élément dans la zone courante
+     * @param prochaineZone la zone qui suit la zone z
+     * @param elementDansProchaineZone le premier élément de la zone qui suit z
+     * @return true si l'élément est trouvé
+     */
+    private boolean elementNestPasLePremierDansLaZone(Element e,
+                                                      MaillonZone courantZone,
+                                                      MaillonElement elementDansCourantZone,
+                                                      MaillonZone prochaineZone,
+                                                      MaillonElement elementDansProchaineZone) {
+        boolean trouve;
+        MaillonElement precedentElement;
+        precedentElement = elementDansCourantZone;
+        if(elementDansCourantZone.suivant != null){
+            elementDansCourantZone = elementDansCourantZone.suivant;
+        }
 
-                        if (elementDansCourantZone.typeValeur == e){
-                            trouve = true;
-                        }
-                    }
+        while (elementDansCourantZone.typeValeur != e &&
+                elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur && elementDansCourantZone.suivant != null) {
+            precedentElement = elementDansCourantZone;
+            elementDansCourantZone =
+                    elementDansCourantZone.suivant;
+        }
+        if (precedentElement.typeValeur == e || elementDansCourantZone.typeValeur == e) {
+            trouve = true;
+        }else {
+            trouve = TrouveDansProchaineZone(e, courantZone, prochaineZone);
+        }
+        return trouve;
+    }
+
+    /**
+     * Trouver l'élément dans la dernière zone de la liste.
+     *
+     * @param courantZone la zone courante (z)
+     * @param e l'élément recherché
+     * @return true si l'élément est trouvé
+     */
+    private boolean trouverElementDansDerniereZone(MaillonZone courantZone, Element e) {
+        boolean trouve = false;
+        MaillonElement elementDansCourantZone;
+        elementDansCourantZone = courantZone.pointeurElement;
+        if (elementDansCourantZone.typeValeur == e){
+            trouve = true;
+        }
+
+        trouve = chercherDansDerniereZone(e, elementDansCourantZone, trouve);
+        return trouve;
+    }
+
+    /**
+     * Vérifie si l'élément peut être trouvé dans les prochaines zones.
+     *
+     * @param e l'élément recherché
+     * @param courantZone la zone courante (z)
+     * @param prochaineZone la zone qui suit z
+     * @return true si l'élément est trouvé
+     */
+    private boolean TrouveDansProchaineZone(Element e, MaillonZone courantZone, MaillonZone prochaineZone) {
+        MaillonElement elementDansProchaineZone;
+        MaillonElement elementDansCourantZone;
+        boolean existeProchaineZone;
+        boolean trouve = false;
+        boolean trouveDansProchaineZone = false;
+
+        while(!trouveDansProchaineZone && prochaineZone.suivant != null){
+            prochaineZone = courantZone;
+            existeProchaineZone = true;
+            elementDansProchaineZone = prochaineZone.pointeurElement;
+            elementDansCourantZone = courantZone.pointeurElement;
+
+            if(courantZone.pointeurElement.typeValeur == e){
+                trouve = true;
+                trouveDansProchaineZone = true;
+            }else {
+                if(elementDansCourantZone.suivant != null){
+                    elementDansCourantZone = elementDansCourantZone.suivant;
+                }
+                while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e &&
+                        elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur){
+                    elementDansCourantZone =
+                            elementDansCourantZone.suivant;
+                }
+                if(elementDansCourantZone.typeValeur == e){
+                    trouveDansProchaineZone = true;
+                }else {
+                    trouveDansProchaineZone = false;
+                    courantZone = courantZone.suivant;
                 }
             }
         }
@@ -600,10 +646,7 @@ public class ListeZone< Zone, Element > {
         boolean trouve = false;
 
         if(z != null && e != null){
-            while (courantZone != null && courantZone.typeZone != z ){
-                precedentZone = courantZone;
-                courantZone = courantZone.suivant;
-            }
+            courantZone = TrouverMaillonZone(courantZone, z, precedentZone);
 
             if(courantZone != null){
                 if (courantZone.suivant != null){
@@ -612,20 +655,7 @@ public class ListeZone< Zone, Element > {
                     elementDansProchaineZone =
                             prochaineZone.getPointeurElement();
                     elementDansCourantZone = courantZone.getPointeurElement();
-
-                    if(courantZone.pointeurElement.typeValeur == e){
-                        trouveDansZoneInit = true;
-                    }else {
-                        while (elementDansCourantZone != e &&
-                                elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur && elementDansCourantZone.suivant != null){
-                            precedentElement = elementDansCourantZone;
-                            elementDansCourantZone =
-                                    elementDansCourantZone.suivant;
-                        }
-                        if(precedentElement.typeValeur == e){
-                            trouveDansZoneInit = true;
-                        }
-                    }
+                    trouveDansZoneInit = TrouveDansZoneInit(e, courantZone, elementDansCourantZone, elementDansProchaineZone);
 
                     if(trouveDansZoneInit){
                         courantZone = prochaineZone;
@@ -647,41 +677,12 @@ public class ListeZone< Zone, Element > {
                                         elementDansProchaineZone = prochaineZone.pointeurElement;
                                     }
 
-                                    while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e &&
-                                            elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur ){
-                                        elementDansCourantZone =
-                                                elementDansCourantZone.suivant;
-                                    }
-
-                                    if(elementDansCourantZone.typeValeur == e){
-                                        trouveDansProchaineZone = true;
-                                        trouveDansToutesProchainesZones = true;
-                                    }else {
-                                        trouveDansProchaineZone = false;
-                                    }
-
-                                    if (!trouveDansProchaineZone){
-                                        trouveDansToutesProchainesZones = false;
-                                    }
+                                    elementDansCourantZone = TrouverMaillonElement(e, elementDansCourantZone, elementDansProchaineZone);
+                                    trouveDansToutesProchainesZones = ElementDansToutesLesZones(e, elementDansCourantZone, trouveDansToutesProchainesZones);
                                 }
                             }
-
-
                         }else {
-                            elementDansCourantZone = courantZone.pointeurElement;
-                            if (elementDansCourantZone.typeValeur == e){
-                                trouve = true;
-                            }
-
-                            if(!trouve){
-                                while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e){
-                                    elementDansCourantZone = elementDansCourantZone.suivant;
-                                }
-
-                                if (elementDansCourantZone.typeValeur == e){
-                                    trouve = true;
-                                }
-                            }
+                            trouve = trouverElementDansDerniereZone(courantZone, e);
                         }
                     }
                 }else{
@@ -691,20 +692,101 @@ public class ListeZone< Zone, Element > {
                         trouve = true;
                     }
 
-                    if(!trouve){
-                        while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e){
-                            elementDansCourantZone = elementDansCourantZone.suivant;
-                        }
-
-                        if (elementDansCourantZone.typeValeur == e){
-                            trouve = true;
-                        }
-                    }
+                    trouve = chercherDansDerniereZone(e, elementDansCourantZone, trouve);
                 }
-            }else{
-                trouve = false;
             }
         }
+        trouve = validerElement(trouveDansZoneInit, trouveDansToutesProchainesZones, existeProchaineZone, trouve);
+        return trouve;
+    }
+
+    /**
+     * Chercher l'élément dans la zone z.
+     *
+     * @param e l'élément recherché
+     * @param courantZone la zone courante (z)
+     * @param elementDansCourantZone le premier élément dans la zone courante
+     * @param elementDansProchaineZone le premier élément dans la zone qui
+     *                                 suit la zone courante
+     * @return true si l'élément est trouvé
+     */
+    private boolean TrouveDansZoneInit(Element e, MaillonZone courantZone, MaillonElement elementDansCourantZone, MaillonElement elementDansProchaineZone) {
+        boolean trouveDansZoneInit;
+        if(courantZone.pointeurElement.typeValeur == e){
+            trouveDansZoneInit = true;
+        }else {
+            trouveDansZoneInit = ChercherDansZ(e, elementDansCourantZone, elementDansProchaineZone);
+        }
+        return trouveDansZoneInit;
+    }
+
+    /**
+     * Chercher l'élément dans la zone courante.
+     *
+     * @param e l'élément recherché
+     * @param elementDansCourantZone l'élément dans la zone courante
+     * @param elementDansProchaineZone le premier élément dans la prochaine zone
+     * @return l'élément
+     */
+    private MaillonElement TrouverMaillonElement(Element e, MaillonElement elementDansCourantZone, MaillonElement elementDansProchaineZone) {
+        while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e &&
+                elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur ){
+            elementDansCourantZone =
+                    elementDansCourantZone.suivant;
+        }
+        return elementDansCourantZone;
+    }
+
+    /**
+     * Chercher la zone z dans la liste de zones.
+     *
+     * @param courantZone la première zone de la liste de zones
+     * @param z la zone recherchée
+     * @param precedentZone la zone qui précède z
+     * @return la zone z
+     */
+    private MaillonZone TrouverMaillonZone(MaillonZone courantZone, Zone z, MaillonZone precedentZone) {
+        while (courantZone != null && courantZone.typeZone != z){
+            precedentZone = courantZone;
+            courantZone = courantZone.suivant;
+        }
+        return courantZone;
+    }
+
+    /**
+     * Chercher l'élément e dans la derniere zone.
+     *
+     * @param e l'élément recherché
+     * @param elementDansCourantZone le premier élément dans la zone courante
+     * @param trouve true si l'élément est trouvé
+     * @return true si l'élément est trouvé
+     */
+    private boolean chercherDansDerniereZone(Element e, MaillonElement elementDansCourantZone, boolean trouve) {
+        if(!trouve){
+            while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e){
+                elementDansCourantZone = elementDansCourantZone.suivant;
+            }
+
+            if (elementDansCourantZone.typeValeur == e){
+                trouve = true;
+            }
+        }
+        return trouve;
+    }
+
+    /**
+     * Valider si l'élément recherché se trouve dans la zone z et dans
+     * chacune des suivantes.
+     *
+     * @param trouveDansZoneInit true si l'élément a été trouvé dans la zone z
+     * @param trouveDansToutesProchainesZones true si l'élément a été trouvé
+     *                                        dans les zones qui suivent z
+     * @param existeProchaineZone true si z n'est pas la dernière zone
+     * @param trouve true si l'élément a été trouvé
+     * @return true si l'élément se trouve dans la zone z et dans chacune des
+     * zones suivantes
+     */
+    private static boolean validerElement(boolean trouveDansZoneInit, boolean trouveDansToutesProchainesZones, boolean existeProchaineZone, boolean trouve) {
         if(existeProchaineZone && trouveDansZoneInit && trouveDansToutesProchainesZones){
             trouve = true;
         }
@@ -713,6 +795,55 @@ public class ListeZone< Zone, Element > {
             trouve = true;
         }
         return trouve;
+    }
+
+    /**
+     * Chercher l'élément e dans la zone z.
+     *
+     * @param e l'élément recherché
+     * @param elementDansCourantZone le premier élément de la zone z
+     * @param elementDansProchaineZone le premier élément de la zone qui suit z
+     * @return true si l'élément a été trouvé dans la zone z
+     */
+    private boolean ChercherDansZ(Element e, MaillonElement elementDansCourantZone, MaillonElement elementDansProchaineZone) {
+        MaillonElement precedentElement = null;
+        boolean trouveDansZoneInit = false;
+
+        while (elementDansCourantZone != e &&
+                elementDansCourantZone.typeValeur != elementDansProchaineZone.typeValeur && elementDansCourantZone.suivant != null){
+            precedentElement = elementDansCourantZone;
+            elementDansCourantZone =
+                    elementDansCourantZone.suivant;
+        }
+        if(precedentElement.typeValeur == e){
+            trouveDansZoneInit = true;
+        }
+        return trouveDansZoneInit;
+    }
+
+    /**
+     * Valider que l'élément est trouvé dans toutes les prochaines zones qui
+     * suivent z.
+     *
+     * @param e l'élément recherché
+     * @param elementDansCourantZone l'élément dans la zone courante
+     * @param trouveDansToutesProchainesZones true si l'élément a été trouvé
+     *                                        dans toutes les zones apres z
+     * @return true si si l'élément a été trouvé dans la zone apres z
+     */
+    private boolean ElementDansToutesLesZones(Element e, MaillonElement elementDansCourantZone, boolean trouveDansToutesProchainesZones) {
+        boolean trouveDansProchaineZone;
+        if(elementDansCourantZone.typeValeur == e){
+            trouveDansProchaineZone = true;
+            trouveDansToutesProchainesZones = true;
+        }else {
+            trouveDansProchaineZone = false;
+        }
+
+        if (!trouveDansProchaineZone){
+            trouveDansToutesProchainesZones = false;
+        }
+        return trouveDansToutesProchainesZones;
     }
 
     /**
@@ -859,38 +990,11 @@ public class ListeZone< Zone, Element > {
                                 }
                             }
                         }else {
-                            elementDansCourantZone = courantZone.pointeurElement;
-                            if (elementDansCourantZone.typeValeur == e1){
-                                lesDeuxTrouve = true;
-                            }
-
-                            if(!lesDeuxTrouve){
-                                while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e1){
-                                    elementDansCourantZone = elementDansCourantZone.suivant;
-                                }
-
-                                if (elementDansCourantZone.typeValeur == e1){
-                                    lesDeuxTrouve = true;
-                                }
-                            }
+                            lesDeuxTrouve = trouverElementDansDerniereZone(courantZone, e1);
                         }
                     }
                 } else {
-                    elementDansCourantZone = courantZone.pointeurElement;
-
-                    if (elementDansCourantZone.typeValeur == e2){
-                        lesDeuxTrouve = true;
-                    }
-
-                    if(!lesDeuxTrouve){
-                        while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e2){
-                            elementDansCourantZone = elementDansCourantZone.suivant;
-                        }
-
-                        if (elementDansCourantZone.typeValeur == e2){
-                            lesDeuxTrouve = true;
-                        }
-                    }
+                    lesDeuxTrouve = trouverElementDansDerniereZone(courantZone, e2);
                 }
             }
         }
@@ -1050,19 +1154,7 @@ public class ListeZone< Zone, Element > {
                                 }
                             }
                         }else {
-                            elementDansCourantZone = courantZone.pointeurElement;
-                            if (elementDansCourantZone.typeValeur == e1){
-                                lesDeuxTrouve = true;
-                            }
-
-                            if(!lesDeuxTrouve){
-                                while (elementDansCourantZone.suivant != null && elementDansCourantZone.typeValeur != e1){
-                                    elementDansCourantZone = elementDansCourantZone.suivant;
-                                }
-                                if (elementDansCourantZone.typeValeur == e1){
-                                    lesDeuxTrouve = true;
-                                }
-                            }
+                            lesDeuxTrouve = trouverElementDansDerniereZone(courantZone, e1);
                         }
                     }
                 } else {
